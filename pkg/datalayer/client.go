@@ -66,6 +66,11 @@ type Client struct {
 	converter *subscriptionPropertiesConverter
 }
 
+type SampleKey struct {
+	Address   string
+	Timestamp uint64
+}
+
 // DeleteClient destructs the client.
 // It destroys the client.
 func DeleteClient(c *Client) {
@@ -170,10 +175,19 @@ func (c *Client) CreateSubscription(id string, subscriptionProperties Subscripti
 	}
 	data.SetFlatbuffers(propBytes)
 	notifyKey := notifyResponseRegister(func(result Result, notifyItems []NotifyItem) {
-		items := make(map[string]Variant)
+		items := make(map[SampleKey]Variant)
 		for _, notifyItem := range notifyItems {
 			info := fbs.GetRootAsNotifyInfo(notifyItem.Info.GetFlatbuffers(), 0)
-			items[string(info.Node())] = notifyItem.Data
+			nodeAddress := string(info.Node())
+			timestamp := info.Timestamp()
+
+			var sampleKey = SampleKey{
+				Address:   nodeAddress,
+				Timestamp: timestamp,
+			}
+
+			items[sampleKey] = notifyItem.Data
+
 		}
 		onSubscription(result, items)
 	})
@@ -189,7 +203,7 @@ func (c *Client) CreateSubscription(id string, subscriptionProperties Subscripti
 	}, Result(r)
 }
 
-type OnSubscription func(result Result, items map[string]Variant)
+type OnSubscription func(result Result, items map[SampleKey]Variant)
 
 // DeleteSubscription deletes a subscription.
 func (c *Client) DeleteSubscription(subscription *Subscription) {

@@ -75,6 +75,16 @@ func (s SubscriptionProperties) BuildJson() ([]byte, error) {
 		"errorInterval":     s.ErrorInterval,
 	}
 	v["rules"] = make([]interface{}, 0)
+	if s.SamplingInterval != d.SamplingInterval {
+		p := make(map[string]interface{})
+		p["rule_type"] = "Sampling"
+		r := make(map[string]interface{})
+		p["rule"] = r
+		r["samplingInterval"] = s.SamplingInterval
+		rs := v["rules"].([]interface{})
+		rs = append(rs, p)
+		v["rules"] = rs
+	}
 	if s.QueueSize != d.QueueSize ||
 		s.QueueBehaviour != d.QueueBehaviour {
 		p := make(map[string]interface{})

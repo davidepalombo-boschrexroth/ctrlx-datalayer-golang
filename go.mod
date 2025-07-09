@@ -1,4 +1,4 @@
-module github.com/boschrexroth/ctrlx-datalayer-golang/v2
+module github.com/davidepalombo-boschrexroth/ctrlx-datalayer-golang/v2
 
 go 1.22
 
